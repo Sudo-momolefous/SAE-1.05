@@ -1,4 +1,8 @@
-chemin_fichier = "evenementSAE_15_2025.ics"
+import os
+import csv
+
+
+chemin_fichier = "ADE_RT1_Septembre2025_Decembre2025.ics"
 
 def lire_fichier_ics_simple(chemin_fichier):
 
@@ -17,6 +21,7 @@ def lire_fichier_ics_simple(chemin_fichier):
 
             elif ligne.startswith("DESCRIPTION:"):
                 description = ligne.replace("DESCRIPTION:", "")
+                description = description.replace("\\n", "").strip()
                 print("description :", description)
 
             elif ligne.startswith("DTSTART:"):
@@ -31,6 +36,18 @@ def lire_fichier_ics_simple(chemin_fichier):
                     #print("description :", ligne.replace("NAME:", ""))
     return sommaire, description, fin, début
 
+def ecrire_csv(fichier_ics, fichier_csv):
+    sommaire, description, debut, fin = lire_fichier_ics_simple(fichier_ics)
+
+    with open(fichier_csv, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f, delimiter=";")
+        writer.writerow(["SUMMARY", "DESCRIPTION", "DTSTART", "DTEND"])
+        writer.writerow([sommaire, description, debut, fin])
+
+    print("❇️Normalement si les astres sont sympa LE FICHIER CSV est créé :", fichier_csv)
+
+
+ecrire_csv(chemin_fichier, "test.csv")
 
     
 
