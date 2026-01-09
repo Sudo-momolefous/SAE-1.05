@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Dashboard IP Source</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body {
+ background:#0f172a;
+ color:#e5e7eb;
+ font-family:Arial;
+ margin:0;
+}
+section {
+ background:#020617;
+ margin:20px;
+ padding:20px;
+ border-radius:12px;
+}
+.chart-small {
+ max-width:500px;
+ max-height:400px;
+ margin:auto;
+}
+.alert {
+ background:#7f1d1d;
+ padding:10px;
+ border-radius:6px;
+ margin-top:6px;
+}
+table {
+ width:100%;
+ border-collapse:collapse;
+ margin-top:10px;
+}
+th,td {
+ border:1px solid #334155;
+ padding:8px;
+ text-align:center;
+}
+th { background:#1e293b; }
+.grid {
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:20px;
+ justify-items:center;
+}
+@media (max-width: 800px) {
+ .grid {
+   grid-template-columns:1fr;
+ }
+}
+</style>
+</head>
+<body>
+
+<section class="grid">
+<canvas id="barChart" class="chart-small"></canvas>
+<canvas id="pieChart" class="chart-small"></canvas>
+</section>
+
+<section>
+<h3>Score des IP source (nombre de requêtes)</h3>
+<table>
+<tr><th>IP source</th><th>Score</th></tr>
+<tr><td>BP-Linux8</td><td>2950</td></tr><tr><td>www.aggloroanne.fr</td><td>2130</td></tr><tr><td>190-0-175-100.gba.solunet.com.ar</td><td>1969</td></tr><tr><td>mauves.univ-st-etienne.fr</td><td>1687</td></tr><tr><td>par10s38-in-f3.1e100.net</td><td>827</td></tr><tr><td>par21s23-in-f3.1e100.net</td><td>251</td></tr><tr><td>par21s04-in-f4.1e100.net</td><td>223</td></tr><tr><td>par21s17-in-f1.1e100.net</td><td>180</td></tr><tr><td>par21s23-in-f10.1e100.net</td><td>99</td></tr><tr><td>192.168.190.130</td><td>66</td></tr>
+</table>
+</section>
+
+<section>
+<h3>Menaces détectées (IP source uniquement)</h3>
+<div id="menaces"></div>
+</section>
+
+<script>
+const srcData = {"BP-Linux8": 2950, "www.aggloroanne.fr": 2130, "190-0-175-100.gba.solunet.com.ar": 1969, "mauves.univ-st-etienne.fr": 1687, "par10s38-in-f3.1e100.net": 827, "par21s23-in-f3.1e100.net": 251, "par21s04-in-f4.1e100.net": 223, "par21s17-in-f1.1e100.net": 180, "par21s23-in-f10.1e100.net": 99, "192.168.190.130": 66};
+const menaces = {"BP-Linux8": 2950};
+const colors = ['#3b82f6','#22c55e','#eab308','#ef4444','#a855f7','#14b8a6','#f97316','#ec4899','#84cc16','#06b6d4'];
+
+let barChart=null,pieChart=null;
+
+function draw(){
+ if(barChart) barChart.destroy();
+ if(pieChart) pieChart.destroy();
+
+ barChart = new Chart(document.getElementById("barChart"), {
+  type:'bar',
+  data:{
+   labels:Object.keys(srcData),
+   datasets:[{label:'Nombre de requêtes', data:Object.values(srcData), backgroundColor:colors}]
+  },
+  options:{responsive:true}
+ });
+
+ pieChart = new Chart(document.getElementById("pieChart"), {
+  type:'pie',
+  data:{
+   labels:Object.keys(srcData),
+   datasets:[{data:Object.values(srcData), backgroundColor:colors}]
+  },
+  options:{responsive:true}
+ });
+}
+
+let m=document.getElementById("menaces");
+if(Object.keys(menaces).length===0){
+ m.innerHTML="<div class='alert'>Aucune menace détectée</div>";
+} else {
+ for(let ip in menaces){
+  let d=document.createElement("div");
+  d.className="alert";
+  d.textContent=ip+" → "+menaces[ip]+" requêtes";
+  m.appendChild(d);
+ }
+}
+
+draw();
+</script>
+</body>
+</html>

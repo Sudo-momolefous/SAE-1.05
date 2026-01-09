@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>dashboard securite reseau</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+    font-family: inter, arial;
+    background: #0f172a;
+    color: #e5e7eb;
+    margin: 0;
+}
+header {
+    background: #020617;
+    padding: 20px;
+    text-align: center;
+    font-size: 22px;
+}
+section {
+    background: #020617;
+    margin: 20px;
+    padding: 20px;
+    border-radius: 12px;
+}
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+button, select {
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+}
+.alert {
+    background: #7f1d1d;
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+dashboard de surveillance reseau
+</header>
+
+<section>
+type de graphique
+<select id="type">
+<option value="bar">barres</option>
+<option value="pie">camembert</option>
+</select>
+<button onclick="draw()">appliquer</button>
+</section>
+
+<section class="grid">
+<canvas id="src"></canvas>
+<canvas id="dst"></canvas>
+</section>
+
+<section>
+<h3>menaces potentielles detectees</h3>
+<div id="menaces"></div>
+</section>
+
+<script>
+let srcData = {}
+let dstData = {}
+let menaces = []
+
+fetch("data_ips_src.json").then(r=>r.json()).then(d=>srcData=d)
+fetch("data_ips_dst.json").then(r=>r.json()).then(d=>dstData=d)
+fetch("data_menaces.json").then(r=>r.json()).then(d=>{
+    menaces=d
+    afficherMenaces()
+})
+
+let chartSrc = null
+let chartDst = null
+
+function draw(){
+    let type = document.getElementById("type").value
+
+    if(chartSrc) chartSrc.destroy()
+    if(chartDst) chartDst.destroy()
+
+    chartSrc = new Chart(document.getElementById("src"), {
+        type:type,
+        data:{labels:Object.keys(srcData),datasets:[{data:Object.values(srcData)}]}
+    })
+
+    chartDst = new Chart(document.getElementById("dst"), {
+        type:type,
+        data:{labels:Object.keys(dstData),datasets:[{data:Object.values(dstData)}]}
+    })
+}
+
+function afficherMenaces(){
+    let div = document.getElementById("menaces")
+    menaces.forEach(m=>{
+        let d=document.createElement("div")
+        d.className="alert"
+        d.textContent=m
+        div.appendChild(d)
+    })
+}
+</script>
+
+</body>
+</html>
